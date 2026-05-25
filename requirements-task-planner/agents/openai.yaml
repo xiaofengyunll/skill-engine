@@ -1,4 +1,7 @@
 interface:
   display_name: "Requirements Task Planner"
-  short_description: "Clarify requirements before planning tasks"
-  default_prompt: "Use $requirements-task-planner to collect ambiguous requirements, ask follow-up questions, and draft a task plan with Mermaid diagrams."
+  short_description: "Requirement clarity and task planning"
+  default_prompt: "Use $requirements-task-planner to clarify requirements and produce an appropriately scoped task plan."
+
+policy:
+  allow_implicit_invocation: true

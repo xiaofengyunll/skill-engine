@@ -7,7 +7,7 @@ description: Write requirement-gathering and task-planning proposals from a prod
 
 ## Core Rule
 
-Collect requirements completely before planning. If any requirement is missing, ambiguous, contradictory, or high-risk, ask the user focused follow-up questions first and stop there. Do not produce a task plan until the user's answers make the requirement set complete enough to plan responsibly.
+Collect requirements completely before planning. If any requirement is missing, ambiguous, contradictory, or high-risk, ask the user focused follow-up questions first and stop there. Do not produce a task plan until the user's answers make the requirement set complete enough to plan responsibly and the requirement set has passed the freeze gate. Do not write implementation code until requirement collection is complete and the task planning document has been generated.
 
 Always keep the current phase visible in reasoning and output. Do not mix requirement discovery, architecture design, and task planning in the same step unless the user explicitly requests a lightweight plan.
 
@@ -43,8 +43,9 @@ Never skip phases unless the user explicitly requests Quick Mode or a lightweigh
 4. Identify unknowns, ambiguities, contradictions, assumptions, priority conflicts, and decision points.
 5. Ask follow-up questions when needed.
 6. Continue requirement collection until all necessary questions are answered or clearly marked as user-approved assumptions.
-7. Freeze the requirement set before planning.
-8. Only after requirements are complete, write the task planning proposal.
+7. Run the freeze gate before planning.
+8. Only after requirements are complete and frozen, write the task planning proposal as a Markdown document.
+9. Only after the task planning document is complete may implementation work begin.
 
 ## Requirement Collection
 
@@ -63,6 +64,20 @@ Check these areas before planning:
 
 If requirements are large or unclear, ask the user to prioritize MVP scope, critical workflows, high-risk areas, and deferred features.
 
+## Completeness Check
+
+Before freezing requirements, verify that the following are known, explicitly deferred, or explicitly approved as assumptions:
+
+- Goal and success criteria.
+- In-scope and out-of-scope boundaries.
+- Users, roles, permissions, and key workflows.
+- Priority order and MVP boundary.
+- Core data, integrations, and external dependencies.
+- Non-functional requirements that could affect design, cost, risk, or acceptance.
+- Delivery constraints and acceptance criteria.
+
+If any high-impact item is unknown, do not freeze. Ask the next smallest useful set of questions and wait for the user's answers.
+
 ## Asking Questions
 
 Ask questions only for information needed to remove planning risk. Keep questions grouped and easy to answer.
@@ -79,21 +94,72 @@ Use this format when requirements are incomplete:
 当前我已理解的需求：
 - [已知点]
 - [已知点]
+
+请直接按编号回复；如果某项暂时不确定，可以写“按你的建议假设继续”。
 ```
 
 Prefer 3-7 high-value questions at a time. If many unknowns exist, ask about priority, scope, users, data, and acceptance criteria first.
 
 Do not hide uncertainty as assumptions. Use assumptions only when the user explicitly authorizes proceeding with assumptions, or when the requirement is low-risk and clearly labeled.
 
+Do not generate a formal requirements document while required answers are still missing. Keep incomplete-stage output short enough that the user can answer directly in chat without reviewing a separate document.
+
+When the user answers only part of the questions, acknowledge the answered items, update the known requirement set internally, ask only the remaining blocking questions, and stop. Do not treat partial answers as confirmation to freeze.
+
 ## Requirement Freeze Rule
 
-Before entering planning mode, summarize the finalized requirement set and ask for confirmation if major assumptions, architecture decisions, priority boundaries, or scope boundaries remain uncertain.
+Freezing is an explicit gate between requirement collection and planning.
+
+Before entering planning mode, summarize the finalized requirement set and ask for confirmation unless the task is in Quick Mode and all remaining assumptions are low-risk. For Standard Mode and Deep Analysis Mode, require one of these signals before planning:
+
+- The user explicitly confirms the freeze, for example "确认", "需求已确认", "可以开始规划", or equivalent.
+- The user explicitly authorizes proceeding with named assumptions, for example "按这些假设继续".
+- The user originally requested a lightweight plan and the remaining unknowns are low-risk and clearly labeled.
+
+Never infer freeze confirmation from silence, from the user's partial answers, or from the existence of a generated requirement summary. If major assumptions, architecture decisions, priority boundaries, or scope boundaries remain uncertain, ask for confirmation or clarification and stop before task planning.
+
+After presenting the freeze gate, stop and wait for the user's confirmation or corrections. Do not append the task plan in the same response unless the user has already explicitly confirmed the frozen requirements or explicitly asked for a lightweight plan with assumptions.
 
 Do not continue expanding scope after planning begins unless the user explicitly requests requirement changes. When the user adds or changes requirements after planning starts, pause planning, update the requirement set, identify the impact on design/tasks/risks, and re-freeze the requirements before continuing.
+
+Use this format for the freeze gate:
+
+```markdown
+需求冻结确认：
+
+- 目标：[...]
+- 范围：[...]
+- 优先级/MVP：[...]
+- 关键约束与假设：[...]
+- 验收标准：[...]
+
+请确认以上需求是否可以冻结并进入任务规划；如需调整，请直接指出编号或条目。
+```
 
 ## Planning Output
 
 After requirements are complete, choose an output structure based on task complexity. Do not force every section when the task is simple. Merge or omit sections when they do not add value.
+
+## Planning Document Rule
+
+Task planning must be written to a Markdown file proactively. Do not wait for the user to remind you to generate the planning document.
+
+- Create or update a `.md` planning document after requirements are frozen and before implementation starts.
+- Prefer an existing project documentation location when obvious, such as `docs/`, `design/`, or the repository's established planning directory.
+- If no convention exists, create a clearly named Markdown file such as `docs/task-plan.md` or `requirements-task-plan.md`.
+- Include both the frozen requirements and the task breakdown in the Markdown document so implementation can proceed without rediscovering requirements.
+- In the chat response, provide the document path and a short summary instead of pasting the whole document unless the user asks.
+- If the user only asks for planning and not implementation, stop after producing the Markdown document.
+
+## Implementation Gate
+
+Requirement collection and task planning are mandatory prerequisites for coding.
+
+- Before requirements are frozen, do not create or modify source code, configuration, tests, migrations, scripts, generated assets, or production documentation.
+- Before the task planning Markdown document is complete, do not start implementation.
+- During requirement collection and planning, reading files, inspecting the codebase, and asking clarifying questions are allowed.
+- The only file that may be created or modified during planning is the planning Markdown document, unless the user explicitly asks to update this skill or another planning-process artifact.
+- If the user asks for code changes while requirements or the task plan are incomplete, pause coding, finish requirement collection, freeze requirements, generate the planning Markdown document, and only then proceed.
 
 For complex projects, use:
 
