@@ -1,6 +1,6 @@
 # Skill Engine
 
-本仓库用于沉淀和维护 Codex 可用的本地 Skills。当前包含两个面向软件工程协作的技能：
+本仓库用于沉淀和维护 Codex 可用的本地 Skills。当前包含两个面向软件工程协作与个人开发实践的技能：
 
 - `requirements-task-planner`：需求澄清、需求冻结与任务规划。
 - `code-review-governance`：架构视角代码审查、工程治理与风险分级。
@@ -28,6 +28,7 @@ skill-engine/
         ├── pr-description-template.md
         ├── quick-review-template.md
         ├── review-checklists.md
+        ├── review-input-contract.md
         ├── review-workflow.md
         ├── risk-assessment-template.md
         ├── security-checklist.md
@@ -62,27 +63,30 @@ Use $requirements-task-planner to clarify requirements and produce an appropriat
 
 ### code-review-governance
 
-用于从技术负责人、架构师和工程治理视角做代码审查。它不只关注语法、lint 或局部 bug，而是重点检查需求/设计一致性、架构边界、模块职责、可维护性、测试证据、安全和非功能风险。
+用于从技术负责人、架构师和工程治理视角做代码审查。它不只关注语法、lint 或局部 bug，而是重点检查需求/设计一致性、架构边界、模块职责、可维护性、测试证据、安全和非功能风险，并同时支持团队 PR 流程与个人开发自审模式。
 
 适用场景：
 
-- 审查 PR、变更集或整个仓库的工程质量。
+- 审查本次 diff、某个模块、整个仓库，或一次 bugfix 回归的工程质量。
 - 评估实现是否符合需求文档、设计文档、任务计划或架构约定。
-- 检查前端、Java/Spring、多模块、微服务或全栈项目的模块边界和长期维护风险。
-- 给出合并/发布结论、风险等级、豁免要求和技术债跟踪建议。
+- 检查前端、Java/Spring、Python/FastAPI、Node/Nest/Express、Go、CLI/脚本、多模块、微服务或全栈项目的模块边界和长期维护风险。
+- 在团队模式下给出合并/发布结论、豁免要求和技术债跟踪建议；在个人模式下退化为自担风险记录、修复优先级和继续/暂停建议。
 
 核心规则：
 
+- 先选择审查模式：团队 PR / 个人自审 / 证据不足预审。
+- 优先使用固定输入入口：`diff / 模块 / 仓库 / bugfix 回归`。
 - 先确认审查范围、准入证据和验证状态。
 - 先审查需求/设计一致性，再审查架构和实现细节。
 - 风险等级使用 `致命 / 高风险 / 中风险 / 建议优化`。
 - 合并/发布结论统一遵循 `prompts/risk-assessment-template.md`。
+- 默认输出包含修复优先级，并区分完整审查、条件审查和静态预审。
 - 默认先输出审查摘要，不自动生成大型后续文档，除非用户要求。
 
 默认提示：
 
 ```text
-Use $code-review-governance to review this repository for architecture consistency, maintainability, and engineering governance risks.
+Use $code-review-governance to review this repository, module, diff, or bugfix for architecture consistency, maintainability, and engineering governance risks.
 ```
 
 ## 安装方式
@@ -118,7 +122,17 @@ Copy-Item -Recurse .\code-review-governance C:\Users\<用户名>\.codex\skills\
 使用 $code-review-governance，审查这个仓库的架构一致性、可维护性和工程治理风险。
 ```
 
-对于普通 PR，输出会偏向快速审查结论；对于仓库级或架构较重的审查，会结合 `prompts/` 下的模板输出更完整的治理报告。
+对于普通 PR 或个人自审，输出会偏向快速审查结论；对于仓库级或架构较重的审查，会结合 `prompts/` 下的模板输出更完整的治理报告。
+
+也可以直接按固定入口发起：
+
+```text
+使用 $code-review-governance，审查这次 diff，重点看回归风险和默认修复优先级。
+```
+
+```text
+使用 $code-review-governance，审查这个模块的架构边界和长期自维护风险。
+```
 
 ## 维护约定
 

@@ -1,5 +1,4 @@
 interface:
   display_name: "Code Review Governance"
-  short_description: "Architecture consistency and governance review"
-  default_prompt: "Use $code-review-governance to review this repository for architecture consistency, maintainability, and engineering governance risks."
-
+  short_description: "Architecture review for team and solo projects"
+  default_prompt: "Use $code-review-governance to review this repository, module, diff, or bugfix for architecture consistency, maintainability, and engineering governance risks."

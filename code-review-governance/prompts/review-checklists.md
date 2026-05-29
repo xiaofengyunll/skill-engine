@@ -1,5 +1,14 @@
 # Review Checklists
 
+## 范围与噪音控制
+
+- 先区分手写业务代码、生成代码、第三方目录、脚手架样板、快照、迁移文件和实验代码。
+- 生成代码重点看生成规则、契约漂移、类型错误和不该出现的手工修改，不逐行挑风格。
+- 第三方目录、vendor 和镜像产物默认不做结构审查，只看来源、版本、安全和是否被错误修改。
+- 快照、golden 文件和大批量样板代码只检查语义漂移，不把主要注意力花在格式噪音上。
+- 迁移文件优先审数据安全、兼容性、幂等性、顺序依赖和回滚。
+- 临时实验代码如果不会进入主路径或发布包，可降权并标记待清理；如果运行时可达，就按正式代码审。
+
 ## 需求与设计一致性
 
 - 核心需求是已实现、部分实现，还是缺失。
@@ -90,6 +99,44 @@
 - Controller 直接写数据库，或调用多个 Repository 实现业务流程。
 - Public DTO 暴露持久化内部结构，或变更时没有兼容处理。
 - Security context、tenant ID 或 user scope 在服务间读取不一致。
+
+## Python/FastAPI 工程
+
+- router、service、repository、schema 之间职责是否清晰。
+- Pydantic schema、ORM model、领域模型是否混用失控。
+- 依赖注入、request scope、DB session 生命周期是否清晰且可预测。
+- background task、async 调用、外部 client 和异常映射是否有明确边界。
+- API 契约、错误响应、分页/过滤/排序语义是否稳定。
+
+高风险样例：
+- request/session 生命周期泄漏，导致事务边界或连接管理不可靠。
+- router 直接承载大量业务逻辑，service 退化为薄包装。
+- schema/model 复用不当，导致对外契约暴露内部存储结构。
+
+## Node/Nest/Express 工程
+
+- controller、service、module、middleware、guard、interceptor 的职责是否稳定。
+- DTO/schema 校验、序列化、错误处理和日志是否一致。
+- 异步错误、未处理 promise、资源释放和超时语义是否明确。
+- shared utils、base service、common module 是否开始承载业务规则。
+
+高风险样例：
+- controller 或 middleware 直接处理核心业务和持久化。
+- guard/interceptor 混入业务规则，导致权限与业务耦合。
+- 多个模块复制 DTO、校验规则或 client 封装，后续容易漂移。
+
+## Go / CLI / 脚本工程
+
+- package 是否围绕真实边界组织，而不是按技术碎片随意堆放。
+- interface 是否用于稳定替换点，而不是为了 mock 到处抽象。
+- context、cancel、timeout、goroutine 生命周期是否正确传播。
+- 命令入口、副作用、配置来源、退出码和日志是否适合自动化运行。
+- 脚本是否幂等，重跑是否安全，失败后是否容易恢复。
+
+高风险样例：
+- context 丢失或 goroutine 无法收敛，造成资源泄漏。
+- CLI/脚本在失败时留下半完成状态，但没有回滚或重入设计。
+- package 之间通过全局状态、共享可变配置或隐式副作用耦合。
 
 ## 长期维护风险
 

@@ -1,6 +1,6 @@
 # PR Description Template
 
-用于作者提交 PR 前自检，也作为 Review Entry Criteria 的输入。评审者应先读取本模板内容，再决定是否进入正式审查或标记为证据不足的预审。
+用于作者提交 PR 前自检，也作为团队 Review Entry Criteria 的输入。个人开发 / 自审模式优先使用 `review-input-contract.md` 中对应入口的最小输入模板；如果想要更完整的上下文，也可以复用本模板。
 
 ## 变更范围
 

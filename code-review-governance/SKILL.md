@@ -1,29 +1,44 @@
 ---
 name: code-review-governance
-description: Perform architecture-oriented code review and engineering consistency checks for frontend, Java/Spring, multi-module, microservice, and full-stack repositories. Use when reviewing whether implementation matches requirements, design docs, task plans, existing architecture, coding conventions, module boundaries, maintainability goals, service ownership, and long-term engineering governance expectations; especially for deep review beyond linting, syntax fixes, or simple bug finding.
+description: Perform architecture-oriented code review and engineering consistency checks for frontend, Java/Spring, Python/FastAPI, Node/Nest/Express, Go, CLI/script, multi-module, microservice, and full-stack repositories. Use when reviewing whether implementation matches requirements, design docs, task plans, existing architecture, coding conventions, module boundaries, maintainability goals, service ownership, and long-term engineering governance expectations; especially for deep review beyond linting, syntax fixes, or simple bug finding.
 ---
 
 # Code Review Governance
 
-从技术负责人、架构师和工程治理审查者的视角审查代码库。重点关注需求/设计一致性、架构一致性、模块职责、可维护性、可扩展性和团队协作风险，不要把审查降级成格式、lint 或孤立 bug 检查。
+从技术负责人、架构师和工程治理审查者的视角审查代码库。重点关注需求/设计一致性、架构一致性、模块职责、可维护性、可扩展性，以及协作或自维护风险，不要把审查降级成格式、lint 或孤立 bug 检查。
 
 ## Core Principle
 
 优先追求工程合理性，而不是教条。只有当抽象、拆分、设计模式、微服务、函数式写法或新增层级能降低真实复杂度、澄清归属、提升变更安全性，或符合既有架构时，才建议引入。
+
+## Review Mode Selection
+
+先选模式，再套用后续模板：
+
+- 团队 PR 模式：存在 PR、Reviewer、Owner、审批角色、CI 或发布流程时使用完整团队治理口径。
+- 个人开发 / 自审模式：没有 PR、没有审批角色、没有团队 owner 时默认使用。仍沿用同一套风险等级，但把“合并/发布结论”解释为“当前变更是否适合继续提交、继续迭代或进入发布”。
+- 证据不足预审：无论团队还是个人，只要需求、设计、测试或运行验证证据缺失，就降级为条件审查或静态预审，不假装给出完整发布结论。
+
+个人开发 / 自审模式下使用这些退化规则：
+
+- `模块 Owner`、`Tech Lead`、`批准角色` 默认退化为当前开发者本人。
+- `豁免` 退化为显式的“自担风险记录”，至少写明为什么暂不修、最晚何时回头处理、下一次触发复审的条件。
+- `backlog/Issue` 可以是本地 TODO、仓库 issue、计划文档或审查结果中的待办段落，不要求必须有团队系统。
+- `阻塞合并 / 暂缓合并 / 可带债发布 / 可以合并` 分别解释为：先不要继续提交或发布 / 暂缓继续扩大变更 / 可以带债继续但必须记账 / 当前可以继续。
 
 ## Review Governance Baseline
 
 把审查结论写成可执行判断，而不只是“建议”。每次 review 都要明确：
 - 是否满足审查准入条件。
 - 是否存在必须阻塞合并的问题。
-- 哪些问题可以带债发布，以及豁免责任人、有效期和跟踪方式。
+- 哪些问题可以带债发布，以及豁免责任人或自担责任记录、有效期和跟踪方式。
 - 已验证了什么，哪些风险尚未验证。
 
 ### Review Entry Criteria
 
-开始正式审查前先确认准入条件。条件不足时仍可做预审，但必须在结论中标记为“证据不足”。
+开始正式审查前先确认准入条件。条件不足时仍可做预审，但必须在结论中标记为“证据不足”。固定入口和最小输入模板见 `prompts/review-input-contract.md`。
 
-- PR 或变更范围清晰：有需求、缺陷、任务、设计或变更说明。
+- PR、diff、模块、仓库或 bugfix 回归范围清晰：至少能说清审查对象、目标和不在范围内的事项。
 - CI/build/lint/test 的当前状态可见；若未运行，必须说明原因。
 - 涉及 API、数据库、消息、权限、配置、部署或前端交互变更时，有对应契约、迁移、兼容或验证说明。
 - 涉及架构边界、模块职责或跨团队接口时，有设计说明、ADR、接口文档或现有约定可对照。
@@ -31,7 +46,7 @@ description: Perform architecture-oriented code review and engineering consisten
 
 ### Review Exit Criteria
 
-合并/发布结论以 `prompts/risk-assessment-template.md` 的 Merge Decision Rules 为唯一权威来源。这里保留简要口径：
+合并/发布结论以 `prompts/risk-assessment-template.md` 的 Merge Decision Rules 为唯一权威来源。团队模式按合并/发布解释，个人开发 / 自审模式按“是否建议继续提交或发布”解释。这里保留简要口径：
 
 - 高风险已修复，且必要验证完成：可以合并。
 - 高风险未修复，但已有批准角色、owner、截止时间和 backlog：可带债发布。
@@ -39,6 +54,7 @@ description: Perform architecture-oriented code review and engineering consisten
 - 数据、安全、兼容、核心链路类高风险：默认阻塞合并；只有发布级批准和完整风险记录后才可按豁免流程处理。
 - 若同一问题同时命中多条规则，按更严格的合并结论执行；专项高风险不适用普通高风险豁免口径。
 - 只有中风险或建议优化，且验证充分：可以合并，必要时进入技术债 backlog。
+- 证据不足时，最多只给“静态预审”或“条件审查”，并明确还缺哪些命令、场景或文档。
 
 ### Blocking Rules
 
@@ -49,7 +65,7 @@ description: Perform architecture-oriented code review and engineering consisten
 允许豁免时必须记录：
 
 - 豁免问题、风险等级、影响范围和不立即修复的理由。
-- 批准角色：必须按 `prompts/risk-assessment-template.md` 的 Approval Matrix 执行；普通高风险由模块 Owner 或 Tech Lead 批准，安全/数据/合规、发布/回滚/核心链路、跨团队接口和致命问题例外按对应专项批准要求执行。
+- 批准角色：必须按 `prompts/risk-assessment-template.md` 的 Approval Matrix 执行；普通高风险由模块 Owner 或 Tech Lead 批准，安全/数据/合规、发布/回滚/核心链路、跨团队接口和致命问题例外按对应专项批准要求执行。个人开发 / 自审模式下默认由当前开发者本人承担，但仍要记录理由、截止时间、验证缺口和回滚思路。
 - 有效期：默认不超过一个迭代；超过一个迭代必须重新评估。
 - 技术债条目：包含 owner、优先级、截止时间、验证方式和关闭条件。
 - 复审机制：到期未关闭时升级到治理 backlog 或下一轮架构评审。
@@ -57,8 +73,10 @@ description: Perform architecture-oriented code review and engineering consisten
 ## Review Workflow
 
 1. 确定审查范围。
+   - 优先使用 `prompts/review-input-contract.md` 中的固定入口：审查本次 diff、审查某个模块、审查整个仓库、审查一次 bugfix 回归。
    - 识别项目类型：前端、Java/Spring、全栈、多模块、微服务、库，或混合类型。
    - 查找需求文档、设计文档、任务计划、ADR、README、API 契约、模块文档、包清单、构建文件和测试。
+   - 先做噪音控制：区分 authored source、生成代码、第三方目录、脚手架样板、快照、迁移和实验代码，避免把主要精力浪费在低价值区域。
    - 如果文档缺失，明确说明，并基于可观察的架构和命名约定进行审查。
 
 2. 建立架构图谱。
@@ -77,6 +95,10 @@ description: Perform architecture-oriented code review and engineering consisten
 5. 审查框架相关工程实践。
    - 前端：检查组件边界、hooks/composables、services/API layer、stores、状态归属、类型、样式和可复用 UI。
    - Java/Spring：检查 Controller/Service/Repository 分离、事务边界、DTO/VO/DO/Entity 使用、领域逻辑位置、包结构、配置、异常处理和日志。
+   - Python/FastAPI：检查 router/service/repository 分层、Pydantic schema 边界、依赖注入、事务/session 生命周期、后台任务和异常映射。
+   - Node/Nest/Express：检查 controller/service/module 中的职责、DTO/schema 校验、中间件/guard/interceptor 归属、异步错误处理和共享 util 膨胀。
+   - Go：检查 package 边界、interface 使用是否必要、context 传递、错误处理、并发/取消语义和基础设施耦合。
+   - CLI/脚本仓库：检查命令入口、参数契约、副作用隔离、配置来源、幂等性、回滚/重跑安全和日志输出。
    - 微服务：检查服务归属、数据归属、API 边界、共享模块、RPC 链路、网关职责和重复业务规则。
 
 6. 输出按风险排序的审查结论。
@@ -87,6 +109,7 @@ description: Perform architecture-oriented code review and engineering consisten
 7. 给出合并/发布结论。
    - 标记 `可以合并`、`暂缓合并`、`阻塞合并` 或 `可带债发布`。
    - 记录阻塞项、必须修复项、已批准豁免、验证命令和未验证风险。
+   - 证据不足时，显式降级为 `静态预审` 或 `条件审查`，不要假装完成了发布判断。
 
 8. 生成后续产物前先询问。
    - 审查后先输出简洁的审查摘要。
@@ -143,7 +166,7 @@ description: Perform architecture-oriented code review and engineering consisten
 
 ### Collaboration And Governance
 
-检查命名、注释、目录规则、提交、模块约定、API 契约、异常、日志、常量、魔法值、枚举、配置分层和新人理解成本。判断实现是否适合多人长期维护，新成员是否容易理解。
+检查命名、注释、目录规则、提交、模块约定、API 契约、异常、日志、常量、魔法值、枚举、配置分层和理解成本。判断实现是否适合多人协作，或在个人项目中保持长期自维护清晰度。
 
 ### Security
 
@@ -186,7 +209,7 @@ description: Perform architecture-oriented code review and engineering consisten
 ## Output Rules
 
 初始审查输出必须包含：
-1. 总体工程质量评估：架构质量、可维护性、可扩展性、技术债风险、模块边界健康度和协作准备度。
+1. 总体工程质量评估：架构质量、可维护性、可扩展性、技术债风险、模块边界健康度和协作或自维护准备度。
 2. 风险摘要：各严重等级数量、合并/发布结论、阻塞问题和豁免状态。
 3. 核心发现：每个问题包含位置、问题、原因、为什么重要、长期影响、建议方案和是否建议立即修改。
 4. 需求/设计一致性审查。
@@ -195,13 +218,15 @@ description: Perform architecture-oriented code review and engineering consisten
 7. 相关时包含安全、测试和非功能质量审查。
 8. 延后优化项：有价值但不紧急的事项。
 9. 审查假设与缺口：缺失文档、未审查模块、测试不足或未验证运行时行为。
+10. 默认修复优先级：至少给出“先修哪 1-3 个问题”“哪些可以晚点修”“哪些应先补测试/验证再改结构”。
 
-普通 PR 使用快速审查格式：
+普通 PR 或个人自审使用快速审查格式：
 - 结论：`可以合并 / 暂缓合并 / 阻塞合并 / 可带债发布`
 - 阻塞问题
 - 主要风险
 - 测试与验证
 - 豁免/技术债
+- 默认修复优先级
 - 后续建议
 
 架构较重或仓库级审查使用完整治理模板。
@@ -214,6 +239,7 @@ description: Perform architecture-oriented code review and engineering consisten
 - 总体工程质量
 - 核心风险
 - 高优先级问题
+- 默认修复优先级
 - 架构健康度
 - 是否存在需求/设计偏差
 - 是否存在明显技术债
@@ -236,6 +262,7 @@ description: Perform architecture-oriented code review and engineering consisten
 ## Resource Guide
 
 仅在需要时加载这些提示/参考文件：
+- `prompts/review-input-contract.md`：固定审查入口、个人开发 / 自审模式、噪音控制和证据不足降级策略。
 - `prompts/review-workflow.md`：推荐流程、审查过程、优先级策略、大型项目策略、多模块策略和微服务策略。
 - `prompts/pr-description-template.md`：PR 作者自检和审查准入模板。
 - `prompts/review-checklists.md`：需求/设计、架构、前端、Java/Spring、可维护性和治理的详细审查维度。
